@@ -1,0 +1,22 @@
+@import "tailwindcss";
+
+@variant dark (&:where(.dark, .dark *));
+
+@theme {
+  /* Brand */
+  --color-brand: #f59e0b; /* Amber 500 */
+  --color-brand-hover: #fbbf24; /* Amber 400 */
+
+  /* Light mode (optional) */
+  --color-light-bg: #fafaf9;
+  --color-light-surface: #ffffff;
+  --color-light-text: #1c1917;
+
+  /* Dark mode (Primary design) */
+  --color-dark-bg: #0f0f0f;
+  --color-dark-surface: #18181b;
+  --color-dark-card: #1f1f23;
+  --color-dark-text: #f4f4f5;
+  --color-dark-muted: #a1a1aa;
+  --color-dark-border: #27272a;
+}
