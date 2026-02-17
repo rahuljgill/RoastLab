@@ -14,7 +14,7 @@ export default function BeanLayer() {
 
       const count = 20;
       const size = 1.5;
-      const fallDistance = 0.9;
+      const fallDistance = 0.8;
 
       for (let i = 0; i < count; i++) {
         const bean = document.createElement("img");
