@@ -2,6 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useMe } from "../hooks/useMe";
+import { FiShoppingCart } from "react-icons/fi";
 
 function Navbar({ alwaysVisible = false }) {
   const navigate = useNavigate();
@@ -18,8 +19,6 @@ function Navbar({ alwaysVisible = false }) {
   const logoutMutation = useMutation({
     mutationFn: async () => {
       const token = localStorage.getItem("token");
-
-      // If no token, nothing to do on backend
       if (!token) return;
 
       const res = await fetch(`${import.meta.env.VITE_API_BASE}/api/logout`, {
@@ -35,7 +34,6 @@ function Navbar({ alwaysVisible = false }) {
         await res.json().catch(() => ({}));
       }
     },
-
     onSettled: () => {
       localStorage.removeItem("token");
       queryClient.removeQueries({ queryKey: ["me"] });
@@ -43,9 +41,7 @@ function Navbar({ alwaysVisible = false }) {
     },
   });
 
-  const handleLogout = () => {
-    logoutMutation.mutate();
-  };
+  const handleLogout = () => logoutMutation.mutate();
 
   return (
     <nav
@@ -68,8 +64,11 @@ function Navbar({ alwaysVisible = false }) {
         </Link>
 
         <div className="space-x-6 hidden md:flex text-sm font-medium items-center">
-          <Link to="/" className="hover:text-brand transition text-dark-text">
-            Home
+          <Link
+            to="/shop"
+            className="hover:text-brand transition text-dark-text"
+          >
+            Shop
           </Link>
 
           {user ? (
@@ -102,6 +101,14 @@ function Navbar({ alwaysVisible = false }) {
               </Link>
             </>
           )}
+
+          <Link
+            to="/cart"
+            className="text-dark-text hover:text-brand transition-colors duration-200"
+            aria-label="Shopping cart"
+          >
+            <FiShoppingCart size={20} />
+          </Link>
         </div>
       </div>
     </nav>

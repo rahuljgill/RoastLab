@@ -11,7 +11,9 @@ class Product extends Model
         'description',
         'price',
         'image_url',
-        'stock',
+        'roast_type',
+        'origin',
+        'stock',        
         'is_active',
     ];
 
