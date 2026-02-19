@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CartController;
-
+use App\Http\Controllers\CheckoutController;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,3 +30,5 @@ Route::get('/products', [ProductController::class, 'index']);
 
 
 Route::post('/cart/preview', [CartController::class, 'preview']);
+
+Route::post('/checkout/session', [CheckoutController::class, 'createSession']);

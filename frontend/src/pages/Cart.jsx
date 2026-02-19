@@ -274,7 +274,37 @@ export default function Cart() {
                     />
                   </div>
 
-                  <button className="mt-8 w-full bg-brand text-black py-3 rounded-xl font-semibold hover:bg-brand-hover transition">
+                  <button
+                    disabled={emptyCart || isLoading || isError}
+                    onClick={async () => {
+                      try {
+                        const res = await fetch(
+                          `${import.meta.env.VITE_API_BASE}/api/checkout/session`,
+                          {
+                            method: "POST",
+                            headers: {
+                              Accept: "application/json",
+                              "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify(payload),
+                          },
+                        );
+
+                        const json = await res.json().catch(() => ({}));
+
+                        if (!res.ok) {
+                          throw new Error(json?.message || "Checkout failed");
+                        }
+
+                        // Redirect to Stripe hosted checkout page
+                        window.location.href = json.url;
+                      } catch (err) {
+                        console.error(err);
+                        alert("Something went wrong starting checkout.");
+                      }
+                    }}
+                    className="mt-8 w-full bg-brand text-black py-3 rounded-xl font-semibold hover:bg-brand-hover transition disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
                     Checkout
                   </button>
 
