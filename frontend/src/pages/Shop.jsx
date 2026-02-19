@@ -1,5 +1,6 @@
 import Navbar from "../components/Navbar";
 import { useQuery } from "@tanstack/react-query";
+import { useCart } from "../context/CartContext";
 
 const roastStyle = (roast) => {
   const r = (roast || "").toLowerCase();
@@ -13,6 +14,8 @@ const roastStyle = (roast) => {
 };
 
 export default function Shop() {
+  const { addToCart } = useCart();
+
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["products"],
     queryFn: async () => {
@@ -32,7 +35,7 @@ export default function Shop() {
     },
   });
 
-  const products = Array.isArray(data) ? data : data?.products || [];
+  const products = data?.products || [];
 
   return (
     <div className="bg-dark-bg text-dark-text min-h-screen font-(--font-body)">
@@ -114,7 +117,10 @@ export default function Shop() {
                       </span>
 
                       <div className="ml-auto">
-                        <button className="bg-brand text-black px-7 py-2.5 rounded-lg text-sm font-semibold hover:bg-brand-hover transition">
+                        <button
+                          onClick={() => addToCart(product.id)}
+                          className="bg-brand text-black px-7 py-2.5 rounded-lg text-sm font-semibold hover:bg-brand-hover transition"
+                        >
                           Add to Cart
                         </button>
                       </div>

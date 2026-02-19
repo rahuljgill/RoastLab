@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\CartController;
 
 
 /*
@@ -28,3 +29,4 @@ Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logo
 Route::get('/products', [ProductController::class, 'index']);
 
 
+Route::post('/cart/preview', [CartController::class, 'preview']);

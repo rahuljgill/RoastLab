@@ -3,11 +3,13 @@ import { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useMe } from "../hooks/useMe";
 import { FiShoppingCart } from "react-icons/fi";
+import { useCart } from "../context/CartContext";
 
 function Navbar({ alwaysVisible = false }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { data: user } = useMe();
+  const { itemCount } = useCart();
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -102,12 +104,19 @@ function Navbar({ alwaysVisible = false }) {
             </>
           )}
 
+          {/* Cart icon + badge */}
           <Link
-            to="/cart"
-            className="text-dark-text hover:text-brand transition-colors duration-200"
+            to="/cart-preview"
+            className="relative text-dark-text hover:text-brand transition-colors duration-200"
             aria-label="Shopping cart"
           >
             <FiShoppingCart size={20} />
+
+            {itemCount > 0 && (
+              <span className="absolute -top-2 -right-2 min-w-4.5 h-4.5 px-1 rounded-full bg-brand text-black text-[11px] font-bold flex items-center justify-center">
+                {itemCount > 99 ? "99+" : itemCount}
+              </span>
+            )}
           </Link>
         </div>
       </div>

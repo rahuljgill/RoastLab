@@ -115,7 +115,7 @@ export default function BuildPreview() {
               to="/shop"
               className="border border-dark-border px-6 py-3 rounded-lg hover:border-brand transition"
             >
-              Shop Beans
+              Shop
             </Link>
           </div>
         </div>

@@ -3,6 +3,7 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Shop from "./pages/Shop";
+import Cart from "./pages/Cart";
 
 export default function App() {
   return (
@@ -11,6 +12,7 @@ export default function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/shop" element={<Shop />} />
+      <Route path="/cart-preview" element={<Cart />} />
     </Routes>
   );
 }
