@@ -5,6 +5,7 @@ import Register from "./pages/Register";
 import Shop from "./pages/Shop";
 import Cart from "./pages/Cart";
 import CheckoutSuccess from "./pages/CheckoutSuccess";
+import MyOrders from "./pages/MyOrders";
 
 export default function App() {
   return (
@@ -15,6 +16,7 @@ export default function App() {
       <Route path="/shop" element={<Shop />} />
       <Route path="/cart-preview" element={<Cart />} />
       <Route path="/checkout/success" element={<CheckoutSuccess />} />
+      <Route path="/my-orders" element={<MyOrders />} />
     </Routes>
   );
 }

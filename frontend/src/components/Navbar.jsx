@@ -75,9 +75,12 @@ function Navbar({ alwaysVisible = false }) {
 
           {user ? (
             <>
-              <span className="text-dark-text transition-all duration-200 hover:text-brand cursor-default">
+              <Link
+                to="/my-orders"
+                className="hover:text-brand transition text-dark-text"
+              >
                 My Orders
-              </span>
+              </Link>
 
               <button
                 onClick={handleLogout}
