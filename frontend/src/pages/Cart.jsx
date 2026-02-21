@@ -278,6 +278,7 @@ export default function Cart() {
                     disabled={emptyCart || isLoading || isError}
                     onClick={async () => {
                       try {
+                        const token = localStorage.getItem("token");
                         const res = await fetch(
                           `${import.meta.env.VITE_API_BASE}/api/checkout/session`,
                           {
@@ -285,6 +286,7 @@ export default function Cart() {
                             headers: {
                               Accept: "application/json",
                               "Content-Type": "application/json",
+                              Authorization: `Bearer ${token}`,
                             },
                             body: JSON.stringify(payload),
                           },

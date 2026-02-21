@@ -19,6 +19,8 @@ class CheckoutController extends Controller
 
         $items = $validated['items'];
 
+        $userId = (string) $request->user()->id;
+
         $productIds = collect($items)->pluck('product_id')->unique()->values();
 
         $products = Product::query()
@@ -44,6 +46,7 @@ class CheckoutController extends Controller
 
             $unitAmount = (int) round(((float) $product->price) * 100);
 
+            // the format required by Stripe's API
             $lineItems[] = [
                 'quantity' => $qty,
                 'price_data' => [
@@ -51,6 +54,10 @@ class CheckoutController extends Controller
                     'unit_amount' => $unitAmount,
                     'product_data' => [
                         'name' => $product->name,
+
+                        'metadata' => [
+                            'product_id' => (string) $product->id,
+                        ],
                     ],
                 ],
             ];
@@ -63,8 +70,15 @@ class CheckoutController extends Controller
         $session = CheckoutSession::create([
             'mode' => 'payment',
             'line_items' => $lineItems,
+
             'success_url' => $frontend . '/checkout/success',
             'cancel_url'  => $frontend . '/cart-preview',
+
+            'metadata' => [
+                'user_id' => $userId,
+            ],
+
+          
         ]);
 
         return response()->json([

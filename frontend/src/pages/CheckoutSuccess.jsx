@@ -30,7 +30,7 @@ export default function CheckoutSuccess() {
               </Link>
 
               <Link
-                to="/cart"
+                to="/cart-preview"
                 className="px-6 py-3 rounded-xl font-semibold border border-dark-border hover:bg-dark-card transition"
               >
                 Back to cart

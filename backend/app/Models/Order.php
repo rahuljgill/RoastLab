@@ -12,6 +12,7 @@ class Order extends Model
         'status',
         'shipping_address',
         'payment_method',
+        'stripe_session_id',
     ];
 
     protected $casts = [

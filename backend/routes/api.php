@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\StripeWebhookController;
 
 /*
 |--------------------------------------------------------------------------
@@ -31,4 +32,5 @@ Route::get('/products', [ProductController::class, 'index']);
 
 Route::post('/cart/preview', [CartController::class, 'preview']);
 
-Route::post('/checkout/session', [CheckoutController::class, 'createSession']);
+Route::middleware('auth:sanctum')->post('/checkout/session', [CheckoutController::class, 'createSession']);
+Route::post('/stripe/webhook', [StripeWebhookController::class, 'handle']);
