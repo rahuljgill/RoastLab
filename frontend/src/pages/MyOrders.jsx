@@ -11,6 +11,28 @@ function formatDate(iso) {
   }
 }
 
+const roastPill = (roast = "") => {
+  const r = (roast || "").toLowerCase();
+  if (r.includes("light") && !r.includes("medium"))
+    return "border-sky-400/40 text-sky-300 bg-sky-400/10";
+  if (r.includes("dark") && !r.includes("medium"))
+    return "border-orange-900/60 text-orange-300 bg-orange-900/20";
+  if (r.includes("decaf"))
+    return "border-purple-400/40 text-purple-300 bg-purple-400/10";
+  return "border-amber-500/40 text-amber-300 bg-amber-500/10";
+};
+
+function BlendSpec({ label, value }) {
+  return (
+    <div className="flex items-center justify-between gap-4">
+      <span className="text-xs uppercase tracking-[0.2em] text-dark-muted">
+        {label}
+      </span>
+      <div className="text-right text-sm">{value}</div>
+    </div>
+  );
+}
+
 export default function MyOrders() {
   const { data: me, isLoading: meLoading, isError: meError } = useMe();
   const token = localStorage.getItem("token");
@@ -22,7 +44,7 @@ export default function MyOrders() {
     error: ordersErrObj,
   } = useQuery({
     queryKey: ["orders"],
-    enabled: !!token && !!me, // only query if logged in and /me loaded
+    enabled: !!token && !!me,
     retry: false,
     queryFn: async () => {
       const res = await fetch(`${import.meta.env.VITE_API_BASE}/api/orders`, {
@@ -144,34 +166,112 @@ export default function MyOrders() {
                         </p>
 
                         <div className="mt-4 divide-y divide-dark-border">
-                          {(order.items || []).map((it) => {
-                            const name =
-                              it?.product?.name ||
-                              it?.name ||
-                              `Product #${it.product_id}`;
-                            const qty = Number(it.quantity || 0);
-                            const unit = Number(it.price || it.unit_price || 0);
+                          {(order.items || []).map((item) => {
+                            const type =
+                              item?.type ||
+                              (item?.custom_blend ? "custom_blend" : "product");
+                            const qty = Number(item?.quantity || 1);
+                            const unit = Number(
+                              item?.price || item?.unit_price || 0,
+                            );
                             const lineTotal = qty * unit;
+
+                            if (type === "product") {
+                              const name =
+                                item?.product?.name ||
+                                item?.name ||
+                                `Product #${item.product_id}`;
+
+                              return (
+                                <div
+                                  key={
+                                    item.id ??
+                                    `${order.id}-p-${item.product_id}`
+                                  }
+                                  className="py-4 flex items-start justify-between gap-4"
+                                >
+                                  <div className="min-w-0">
+                                    <p className="font-semibold truncate">
+                                      {name}
+                                    </p>
+                                    <p className="text-sm text-dark-muted mt-1">
+                                      Qty: {qty} • Unit: £{unit.toFixed(2)}
+                                    </p>
+                                  </div>
+
+                                  <div className="shrink-0 text-right">
+                                    <p className="font-semibold">
+                                      £{lineTotal.toFixed(2)}
+                                    </p>
+                                  </div>
+                                </div>
+                              );
+                            }
+
+                            const custom_blend = item?.custom_blend || {};
+                            const roast =
+                              custom_blend?.roast ??
+                              custom_blend?.roast_name ??
+                              "—";
+                            const grind =
+                              custom_blend?.grind ??
+                              custom_blend?.grind_name ??
+                              "—";
+                            const size =
+                              custom_blend?.size ??
+                              custom_blend?.size_name ??
+                              "—";
+                            const extras = Array.isArray(custom_blend?.extras)
+                              ? custom_blend.extras
+                              : [];
 
                             return (
                               <div
-                                key={it.id ?? `${order.id}-${it.product_id}`}
-                                className="py-4 flex items-start justify-between gap-4"
+                                key={
+                                  item.id ??
+                                  `${order.id}-cb-${custom_blend?.cart_item_id ?? "x"}`
+                                }
+                                className="py-4"
                               >
-                                <div className="min-w-0">
-                                  <p className="font-semibold truncate">
-                                    {name}
-                                  </p>
-                                  <p className="text-sm text-dark-muted mt-1">
-                                    Qty: {qty} • Unit: £{unit.toFixed(2)}
-                                  </p>
+                                <div className="flex items-start justify-between gap-4">
+                                  <div className="min-w-0">
+                                    <p className="font-semibold truncate">
+                                      Custom Blend
+                                    </p>
+                                    <p className="text-sm text-dark-muted mt-1">
+                                      Qty: {qty} • Unit: £{unit.toFixed(2)}
+                                    </p>
+                                  </div>
+
+                                  <div className="shrink-0 text-right">
+                                    <p className="font-semibold">
+                                      £{lineTotal.toFixed(2)}
+                                    </p>
+                                  </div>
                                 </div>
 
-                                <div className="shrink-0 text-right">
-                                  <p className="text-sm text-dark-muted"></p>
-                                  <p className="font-semibold">
-                                    £{lineTotal.toFixed(2)}
-                                  </p>
+                                {/* Specs */}
+                                <div className="mt-4 rounded-2xl border border-dark-border bg-dark-bg p-4 space-y-2">
+                                  <BlendSpec
+                                    label="Roast"
+                                    value={
+                                      <span
+                                        className={`inline-flex items-center text-xs font-semibold px-3 py-1.5 rounded-full border ${roastPill(
+                                          String(roast),
+                                        )}`}
+                                      >
+                                        {roast}
+                                      </span>
+                                    }
+                                  />
+                                  <BlendSpec label="Grind" value={grind} />
+                                  <BlendSpec label="Size" value={size} />
+                                  <BlendSpec
+                                    label="Extras"
+                                    value={
+                                      extras.length ? extras.join(", ") : "None"
+                                    }
+                                  />
                                 </div>
                               </div>
                             );
