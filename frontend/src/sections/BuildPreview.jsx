@@ -8,21 +8,21 @@ gsap.registerPlugin(ScrollTrigger);
 const steps = [
   {
     num: "01",
-    title: "Pick a base",
-    desc: "Choose a region and flavour profile as your starting point.",
-    tags: ["Ethiopia", "Colombia", "Blend"],
-  },
-  {
-    num: "02",
-    title: "Tune the brew",
-    desc: "Set roast + grind for your method; espresso, filter, moka, etc.",
+    title: "Pick your profile",
+    desc: "Choose roast + grind to match your taste and brewing method.",
     tags: ["Light", "Medium", "Espresso"],
   },
   {
-    num: "03",
+    num: "02",
     title: "Lock the size",
-    desc: "Select the bag size and watch pricing update instantly.",
+    desc: "Select your bag size.",
     tags: ["250g", "500g", "1kg"],
+  },
+  {
+    num: "03",
+    title: "Add extras",
+    desc: "Optional add-ons like decaf or infusions.",
+    tags: ["Decaf", "Vanilla", "Hazelnut"],
   },
 ];
 
@@ -180,10 +180,10 @@ export default function BuildPreview() {
               {/* Content */}
               <div className="p-8">
                 <div className="grid gap-4">
-                  <Row label="Origin" value="Ethiopia (Yirgacheffe)" />
                   <Row label="Roast" value="Medium" />
                   <Row label="Grind" value="Espresso" />
                   <Row label="Size" value="500g" />
+                  <Row label="Extras" value="Decaf" />
                 </div>
 
                 <div className="mt-8 flex items-end justify-between">

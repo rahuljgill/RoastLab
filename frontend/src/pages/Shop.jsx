@@ -45,7 +45,11 @@ export default function Shop() {
         <div className="max-w-6xl mx-auto">
           {/* HEADER */}
           <div className="mb-14">
-            <h1 className="text-4xl md:text-5xl font-semibold tracking-tight">
+            <p className="text-xs tracking-[0.25em] uppercase text-dark-muted">
+              Browse
+            </p>
+
+            <h1 className="mt-3 text-4xl md:text-5xl font-semibold tracking-tight">
               Shop
             </h1>
             <p className="text-dark-muted mt-3 max-w-xl leading-relaxed">
@@ -152,8 +156,8 @@ export default function Shop() {
             <div>
               <h2 className="text-2xl font-semibold">Want something custom?</h2>
               <p className="text-dark-muted mt-2 max-w-2xl leading-relaxed">
-                Build your own blend by choosing origin, roast level, grind
-                type, and size, with live price updates.
+                Build your own blend by choosing roast level, grind type, size
+                and extras.
               </p>
             </div>
             <a

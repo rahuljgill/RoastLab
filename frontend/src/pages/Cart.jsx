@@ -1,8 +1,8 @@
 import Navbar from "../components/Navbar";
-import { Link } from "react-router-dom";
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useCart } from "../context/CartContext";
+import { Link, useNavigate } from "react-router-dom";
 
 const roastPill = (roast = "") => {
   const r = (roast || "").toLowerCase();
@@ -16,17 +16,49 @@ const roastPill = (roast = "") => {
 };
 
 export default function Cart() {
-  const { items, addToCart, decreaseQty, removeFromCart } = useCart();
+  const navigate = useNavigate();
+  const {
+    items,
+    addToCart,
+    decreaseQty,
+    removeFromCart,
+    removeCustomBlendFromCart,
+  } = useCart();
 
   const emptyCart = items.length === 0;
 
   // Convert cart items to correct format for backend
   const payload = useMemo(() => {
     return {
-      items: items.map((i) => ({
-        product_id: Number(i.productId),
-        quantity: Number(i.quantity),
-      })),
+      items: items
+        .map((i) => {
+          if (i.type === "product") {
+            return {
+              type: "product",
+              product_id: Number(i.productId),
+              quantity: Number(i.quantity || 1),
+            };
+          }
+
+          if (i.type === "custom_blend" && i.customBlend) {
+            return {
+              type: "custom_blend",
+              cart_item_id: i.cartItemId,
+              quantity: 1,
+              custom_blend: {
+                roast_option_id: Number(i.customBlend.roast_option_id),
+                grind_option_id: Number(i.customBlend.grind_option_id),
+                size_option_id: Number(i.customBlend.size_option_id),
+                extras: Array.isArray(i.customBlend.extras)
+                  ? i.customBlend.extras.map(Number)
+                  : [],
+              },
+            };
+          }
+
+          return null;
+        })
+        .filter(Boolean),
     };
   }, [items]);
 
@@ -61,7 +93,6 @@ export default function Cart() {
 
   const cartRows = previewData?.items || [];
 
-  // Convert backend data to numbers for calculations
   const subtotal = Number(previewData?.subtotal || 0);
   const shipping = Number(previewData?.shipping || 0);
   const total = Number(previewData?.total || 0);
@@ -131,105 +162,180 @@ export default function Cart() {
                   </div>
 
                   <div className="divide-y divide-dark-border">
-                    {cartRows.map((item) => {
-                      const unitPrice = Number(item.unit_price);
-                      const qty = Number(item.quantity);
-                      const lineTotal = Number(item.line_total);
+                    {cartRows.map((row) => {
+                      const type = row.type || "product";
+                      const unitPrice = Number(row.unit_price || 0);
+                      const qty = Number(row.quantity || 1);
+                      const lineTotal = Number(
+                        row.line_total || unitPrice * qty,
+                      );
+
+                      //PRODUCTS
+                      if (type === "product") {
+                        const productId = Number(row.product_id ?? row.id);
+
+                        return (
+                          <div
+                            key={`p_${productId}`}
+                            className="flex gap-6 px-6 py-6 hover:bg-dark-card transition"
+                          >
+                            {/* Image */}
+                            <div
+                              className="shrink-0 w-24 rounded-2xl bg-dark-bg border border-dark-border overflow-hidden"
+                              style={{ aspectRatio: "1 / 1.4" }}
+                            >
+                              <img
+                                src={row.image_url || row.image}
+                                alt={row.name}
+                                className="w-full h-full object-contain"
+                                loading="lazy"
+                              />
+                            </div>
+
+                            {/* Info */}
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-start justify-between gap-4">
+                                <div className="min-w-0">
+                                  <h3 className="font-semibold text-lg truncate">
+                                    {row.name}
+                                  </h3>
+                                  <p className="text-sm text-dark-muted mt-1">
+                                    {row.origin || "—"}
+                                  </p>
+                                </div>
+
+                                <div className="text-right shrink-0">
+                                  <p className="text-brand font-bold">
+                                    £{unitPrice.toFixed(2)}
+                                  </p>
+                                  <p className="text-xs text-dark-muted mt-1">
+                                    each
+                                  </p>
+                                </div>
+                              </div>
+
+                              <div className="flex items-center gap-3 mt-4 flex-wrap">
+                                <span
+                                  className={`text-xs font-semibold px-3 py-1.5 rounded-full border ${roastPill(
+                                    row.roast_type || row.roast || "Roast",
+                                  )}`}
+                                >
+                                  {row.roast_type || row.roast || "Roast"}
+                                </span>
+
+                                {/* Qty controls */}
+                                <div className="ml-auto flex items-center gap-2">
+                                  <div className="flex items-center border border-dark-border rounded-xl overflow-hidden bg-dark-bg">
+                                    <button
+                                      onClick={() => decreaseQty(productId, 1)}
+                                      className="px-3 py-2 text-dark-text hover:text-brand transition"
+                                      aria-label={`Decrease quantity of ${row.name}`}
+                                    >
+                                      −
+                                    </button>
+
+                                    <span className="px-4 py-2 text-sm font-semibold">
+                                      {qty}
+                                    </span>
+
+                                    <button
+                                      onClick={() => addToCart(productId, 1)}
+                                      className="px-3 py-2 text-dark-text hover:text-brand transition"
+                                      aria-label={`Increase quantity of ${row.name}`}
+                                    >
+                                      +
+                                    </button>
+                                  </div>
+
+                                  <button
+                                    onClick={() => removeFromCart(productId)}
+                                    className="text-sm text-dark-muted hover:text-brand transition"
+                                  >
+                                    Remove
+                                  </button>
+                                </div>
+                              </div>
+
+                              {/* Line total */}
+                              <div className="mt-4 text-sm text-dark-muted">
+                                Line total:{" "}
+                                <span className="text-dark-text font-semibold">
+                                  £{lineTotal.toFixed(2)}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      }
+
+                      //CUSTOM BLENDS
+                      const cartItemId = row.cart_item_id ?? row.id;
+
+                      const roastLabel = row.roast_name ?? "—";
+                      const grindLabel = row.grind_name ?? "—";
+                      const sizeLabel = row.size_name ?? "—";
+
+                      const extrasLabels = row.extras_names ?? [];
 
                       return (
                         <div
-                          key={item.id}
-                          className="flex gap-6 px-6 py-6 hover:bg-dark-card transition"
+                          key={`cb_${cartItemId}`}
+                          className="px-6 py-6 hover:bg-dark-card transition"
                         >
-                          {/* Image */}
-                          <div
-                            className="shrink-0 w-24 rounded-2xl bg-dark-bg border border-dark-border overflow-hidden"
-                            style={{ aspectRatio: "1 / 1.4" }}
-                          >
-                            <img
-                              src={item.image_url || item.image}
-                              alt={item.name}
-                              className="w-full h-full object-contain"
-                              loading="lazy"
-                            />
-                          </div>
-
-                          {/* Info */}
-                          <div className="flex-1 min-w-0">
+                          <div className="rounded-2xl border border-dark-border bg-dark-bg p-5">
                             <div className="flex items-start justify-between gap-4">
                               <div className="min-w-0">
                                 <h3 className="font-semibold text-lg truncate">
-                                  {item.name}
+                                  {row.title || "Build Your Blend"}
                                 </h3>
-                                <p className="text-sm text-dark-muted mt-1">
-                                  {item.origin || "—"}
-                                </p>
                               </div>
 
                               <div className="text-right shrink-0">
                                 <p className="text-brand font-bold">
                                   £{unitPrice.toFixed(2)}
                                 </p>
-                                <p className="text-xs text-dark-muted mt-1">
-                                  each
-                                </p>
                               </div>
                             </div>
 
-                            <div className="flex items-center gap-3 mt-4 flex-wrap">
-                              <span
-                                className={`text-xs font-semibold px-3 py-1.5 rounded-full border ${roastPill(
-                                  item.roast_type || item.roast || "Roast",
-                                )}`}
-                              >
-                                {item.roast_type || item.roast || "Roast"}
-                              </span>
-
-                              {/* Qty controls */}
-                              <div className="ml-auto flex items-center gap-2">
-                                <div className="flex items-center border border-dark-border rounded-xl overflow-hidden bg-dark-bg">
-                                  <button
-                                    onClick={() =>
-                                      decreaseQty(Number(item.id), 1)
-                                    }
-                                    className="px-3 py-2 text-dark-text hover:text-brand transition"
-                                    aria-label={`Decrease quantity of ${item.name}`}
+                            {/* Spec list */}
+                            <div className="mt-4 space-y-2">
+                              <BlendSpec
+                                label="Roast level"
+                                value={
+                                  <span
+                                    className={`inline-flex items-center text-xs font-semibold px-3 py-1.5 rounded-full border ${roastPill(
+                                      String(roastLabel),
+                                    )}`}
                                   >
-                                    −
-                                  </button>
-
-                                  <span className="px-4 py-2 text-sm font-semibold">
-                                    {qty}
+                                    {roastLabel}
                                   </span>
+                                }
+                              />
+                              <BlendSpec label="Grind" value={grindLabel} />
+                              <BlendSpec label="Size" value={sizeLabel} />
+                              <BlendSpec
+                                label="Extras"
+                                value={
+                                  extrasLabels.length
+                                    ? extrasLabels.join(", ")
+                                    : "None"
+                                }
+                              />
+                            </div>
 
-                                  <button
-                                    onClick={() =>
-                                      addToCart(Number(item.id), 1)
-                                    }
-                                    className="px-3 py-2 text-dark-text hover:text-brand transition"
-                                    aria-label={`Increase quantity of ${item.name}`}
-                                  >
-                                    +
-                                  </button>
-                                </div>
+                            <div className="mt-5 flex items-center justify-between">
+                              <span className="text-sm text-dark-muted"></span>
 
+                              <div className="flex items-center gap-4">
                                 <button
                                   onClick={() =>
-                                    removeFromCart(Number(item.id))
+                                    removeCustomBlendFromCart(cartItemId)
                                   }
                                   className="text-sm text-dark-muted hover:text-brand transition"
                                 >
                                   Remove
                                 </button>
                               </div>
-                            </div>
-
-                            {/* Line total */}
-                            <div className="mt-4 text-sm text-dark-muted">
-                              Line total:{" "}
-                              <span className="text-dark-text font-semibold">
-                                £{lineTotal.toFixed(2)}
-                              </span>
                             </div>
                           </div>
                         </div>
@@ -279,6 +385,11 @@ export default function Cart() {
                     onClick={async () => {
                       try {
                         const token = localStorage.getItem("token");
+                        if (!token) {
+                          navigate("/login");
+                          return;
+                        }
+
                         const res = await fetch(
                           `${import.meta.env.VITE_API_BASE}/api/checkout/session`,
                           {
@@ -293,16 +404,17 @@ export default function Cart() {
                         );
 
                         const json = await res.json().catch(() => ({}));
-
                         if (!res.ok) {
                           throw new Error(json?.message || "Checkout failed");
                         }
 
-                        // Redirect to Stripe hosted checkout page
                         window.location.href = json.url;
                       } catch (err) {
                         console.error(err);
-                        alert("Something went wrong starting checkout.");
+                        alert(
+                          err?.message ||
+                            "Something went wrong starting checkout.",
+                        );
                       }
                     }}
                     className="mt-8 w-full bg-brand text-black py-3 rounded-xl font-semibold hover:bg-brand-hover transition disabled:opacity-60 disabled:cursor-not-allowed"
@@ -334,6 +446,17 @@ export default function Cart() {
           © 2026 RoastLab. All rights reserved.
         </p>
       </footer>
+    </div>
+  );
+}
+
+function BlendSpec({ label, value }) {
+  return (
+    <div className="flex items-center justify-between gap-4">
+      <span className="text-xs uppercase tracking-[0.2em] text-dark-muted">
+        {label}
+      </span>
+      <div className="text-right">{value}</div>
     </div>
   );
 }

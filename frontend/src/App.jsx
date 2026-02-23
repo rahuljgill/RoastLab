@@ -6,6 +6,7 @@ import Shop from "./pages/Shop";
 import Cart from "./pages/Cart";
 import CheckoutSuccess from "./pages/CheckoutSuccess";
 import MyOrders from "./pages/MyOrders";
+import BuildYourBlend from "./pages/BuildYourBlend";
 
 export default function App() {
   return (
@@ -17,6 +18,7 @@ export default function App() {
       <Route path="/cart-preview" element={<Cart />} />
       <Route path="/checkout/success" element={<CheckoutSuccess />} />
       <Route path="/my-orders" element={<MyOrders />} />
+      <Route path="/build-your-blend" element={<BuildYourBlend />} />
     </Routes>
   );
 }

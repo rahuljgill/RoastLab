@@ -15,13 +15,30 @@ return new class extends Migration
                 ->constrained()
                 ->onDelete('cascade');
 
-            $table->string('origin');
-            $table->string('roast_level');
-            $table->string('grind_type');
-            $table->integer('size'); 
-            // e.g. 250g, 500g, 1000g
+            $table->string('name')->nullable();
 
-            $table->decimal('price', 8, 2)->nullable();
+
+            $table->string('origin')->nullable();
+
+            $table->foreignId('roast_option_id')
+                ->constrained('blend_options')
+                ->restrictOnDelete();
+
+            $table->foreignId('grind_option_id')
+                ->constrained('blend_options')
+                ->restrictOnDelete();
+
+            $table->foreignId('size_option_id')
+                ->constrained('blend_options')
+                ->restrictOnDelete();
+
+            // Extras as an array of option IDs, e.g. [12, 15]
+            $table->json('extras')->nullable();
+
+           
+            $table->decimal('price_total', 10, 2);
+
+            $table->text('description')->nullable();
 
             $table->timestamps();
         });

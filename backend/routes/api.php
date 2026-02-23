@@ -8,7 +8,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\StripeWebhookController;
 use App\Http\Controllers\OrderController;
-
+use App\Http\Controllers\BlendOptionController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -36,3 +36,7 @@ Route::post('/cart/preview', [CartController::class, 'preview']);
 Route::middleware('auth:sanctum')->post('/checkout/session', [CheckoutController::class, 'createSession']);
 Route::post('/stripe/webhook', [StripeWebhookController::class, 'handle']);
 Route::middleware('auth:sanctum')->get('/orders', [OrderController::class, 'index']);
+
+
+
+Route::get('/blend-options', [BlendOptionController::class, 'index']);
