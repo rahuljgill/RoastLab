@@ -8,17 +8,54 @@ import CheckoutSuccess from "./pages/CheckoutSuccess";
 import MyOrders from "./pages/MyOrders";
 import BuildYourBlend from "./pages/BuildYourBlend";
 
+import { ProtectedRoute, GuestRoute } from "./components/RouteGuards";
+
 export default function App() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
+
+      {/* guest only */}
+      <Route
+        path="/login"
+        element={
+          <GuestRoute>
+            <Login />
+          </GuestRoute>
+        }
+      />
+
+      <Route
+        path="/register"
+        element={
+          <GuestRoute>
+            <Register />
+          </GuestRoute>
+        }
+      />
+
       <Route path="/shop" element={<Shop />} />
       <Route path="/cart-preview" element={<Cart />} />
-      <Route path="/checkout/success" element={<CheckoutSuccess />} />
-      <Route path="/my-orders" element={<MyOrders />} />
       <Route path="/build-your-blend" element={<BuildYourBlend />} />
+
+      {/* protected */}
+      <Route
+        path="/checkout/success"
+        element={
+          <ProtectedRoute>
+            <CheckoutSuccess />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/my-orders"
+        element={
+          <ProtectedRoute>
+            <MyOrders />
+          </ProtectedRoute>
+        }
+      />
     </Routes>
   );
 }
