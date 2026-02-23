@@ -1,6 +1,7 @@
 import Navbar from "../components/Navbar";
 import { useQuery } from "@tanstack/react-query";
 import { useCart } from "../context/CartContext";
+import { Link } from "react-router-dom";
 
 const roastStyle = (roast) => {
   const r = (roast || "").toLowerCase();
@@ -160,12 +161,12 @@ export default function Shop() {
                 and extras.
               </p>
             </div>
-            <a
-              href="/build-your-blend"
+            <Link
+              to="/build-your-blend"
               className="bg-brand text-black px-6 py-3 rounded-lg font-semibold hover:bg-brand-hover transition whitespace-nowrap"
             >
               Build Your Blend
-            </a>
+            </Link>
           </div>
         </div>
       </div>
