@@ -21,17 +21,11 @@ export default function Shop() {
     queryKey: ["products"],
     queryFn: async () => {
       const res = await fetch(`${import.meta.env.VITE_API_BASE}/api/products`, {
-        headers: {
-          Accept: "application/json",
-        },
+        headers: { Accept: "application/json" },
       });
 
       const json = await res.json().catch(() => ({}));
-
-      if (!res.ok) {
-        throw new Error(json?.message || "Failed to load products.");
-      }
-
+      if (!res.ok) throw new Error(json?.message || "Failed to load products.");
       return json;
     },
   });
@@ -59,7 +53,6 @@ export default function Shop() {
             </p>
           </div>
 
-          {/* TOP DIVIDER */}
           <div className="border-t border-dark-border" />
 
           {isLoading && (
@@ -78,25 +71,38 @@ export default function Shop() {
               {products.map((product, index) => (
                 <div
                   key={product.id}
-                  className="group relative flex flex-row items-stretch border-b border-dark-border hover:bg-dark-card transition-colors duration-300"
+                  className="group relative flex flex-col md:flex-row items-stretch border-b border-dark-border hover:bg-dark-card transition-colors duration-300"
                 >
-                  {/* Hover accent line */}
                   <div className="absolute left-0 top-0 bottom-0 w-0.75 bg-brand scale-y-0 group-hover:scale-y-100 transition-transform duration-300 origin-center rounded-full" />
 
-                  {/* Blend index */}
-                  <div className="shrink-0 w-28 flex flex-col items-center justify-center py-8 border-r border-dark-border">
-                    <span className="text-xs font-mono text-dark-muted group-hover:text-brand transition-colors duration-300 tracking-widest uppercase">
-                      blend
-                    </span>
-                    <span className="text-3xl font-bold font-mono text-dark-muted group-hover:text-brand transition-colors duration-300 leading-none mt-1">
-                      {String(index + 1).padStart(2, "0")}
-                    </span>
+                  {/* LEFT COLUMN */}
+                  <div className="shrink-0 w-full md:w-28 flex flex-col border-b md:border-b-0 md:border-r border-dark-border">
+                    {/* Blend index */}
+                    <div className="flex flex-row md:flex-col items-center justify-between md:justify-center py-4 md:py-8 px-6 md:px-0">
+                      <span className="text-xs font-mono text-dark-muted group-hover:text-brand tracking-widest uppercase">
+                        blend
+                      </span>
+                      <span className="text-3xl font-bold font-mono text-dark-muted group-hover:text-brand leading-none md:mt-1">
+                        {String(index + 1).padStart(2, "0")}
+                      </span>
+                    </div>
+
+                    {/* MOBILE IMAGE */}
+                    <div className="w-full px-6 pb-6 md:hidden">
+                      <div className="w-full rounded-2xl overflow-hidden bg-dark-surface aspect-[3/4]">
+                        <img
+                          src={product.image_url}
+                          alt={product.name}
+                          className="w-full h-full object-contain"
+                        />
+                      </div>
+                    </div>
                   </div>
 
-                  {/* Main content */}
-                  <div className="flex flex-col flex-1 py-8 px-8 gap-4 justify-center">
+                  {/* MAIN CONTENT */}
+                  <div className="flex flex-col flex-1 py-6 md:py-8 px-6 md:px-8 gap-4 justify-center">
                     <div className="flex items-baseline gap-4 flex-wrap">
-                      <h3 className="font-semibold text-2xl group-hover:text-brand transition-colors duration-300">
+                      <h3 className="font-semibold text-2xl group-hover:text-brand">
                         {product.name}
                       </h3>
                       <span className="text-dark-muted text-base">
@@ -132,11 +138,8 @@ export default function Shop() {
                     </div>
                   </div>
 
-                  {/* Image */}
-                  <div
-                    className="shrink-0 w-48 self-center mr-8 rounded-2xl overflow-hidden bg-dark-surface"
-                    style={{ aspectRatio: "1 / 2" }}
-                  >
+                  {/* DESKTOP IMAGE */}
+                  <div className="hidden md:block shrink-0 w-48 self-center mr-8 rounded-2xl overflow-hidden bg-dark-surface aspect-[1/2]">
                     <img
                       src={product.image_url}
                       alt={product.name}

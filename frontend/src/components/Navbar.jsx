@@ -2,7 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useMe } from "../hooks/useMe";
-import { FiShoppingCart } from "react-icons/fi";
+import { FiShoppingCart, FiMenu, FiX } from "react-icons/fi";
 import { useCart } from "../context/CartContext";
 
 function Navbar({ alwaysVisible = false }) {
@@ -10,7 +10,9 @@ function Navbar({ alwaysVisible = false }) {
   const queryClient = useQueryClient();
   const { data: user } = useMe();
   const { itemCount } = useCart();
+
   const [scrolled, setScrolled] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 5);
@@ -23,18 +25,13 @@ function Navbar({ alwaysVisible = false }) {
       const token = localStorage.getItem("token");
       if (!token) return;
 
-      const res = await fetch(`${import.meta.env.VITE_API_BASE}/api/logout`, {
+      await fetch(`${import.meta.env.VITE_API_BASE}/api/logout`, {
         method: "POST",
         headers: {
           Accept: "application/json",
-          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
       });
-
-      if (!res.ok) {
-        await res.json().catch(() => ({}));
-      }
     },
     onSettled: () => {
       localStorage.removeItem("token");
@@ -43,12 +40,15 @@ function Navbar({ alwaysVisible = false }) {
     },
   });
 
-  const handleLogout = () => logoutMutation.mutate();
+  const handleLogout = () => {
+    logoutMutation.mutate();
+    setMobileOpen(false);
+  };
 
   return (
     <nav
       className={[
-        "navbar fixed top-0 left-0 w-full z-50",
+        "fixed top-0 left-0 w-full z-50",
         "backdrop-blur-md bg-black/40 border-b border-white/5",
         "transition-all duration-300",
         alwaysVisible || scrolled
@@ -56,8 +56,8 @@ function Navbar({ alwaysVisible = false }) {
           : "opacity-0 -translate-y-8",
       ].join(" ")}
     >
-      <div className="flex items-center justify-between px-8 py-6 max-w-7xl mx-auto">
-        {/* Logo */}
+      <div className="flex items-center justify-between px-6 py-5 max-w-7xl mx-auto">
+        {/* LOGO */}
         <Link
           to="/"
           className="text-2xl font-bold tracking-tight text-dark-text"
@@ -65,64 +65,110 @@ function Navbar({ alwaysVisible = false }) {
           Roast<span className="text-brand">Lab</span>
         </Link>
 
+        {/* DESKTOP NAV */}
         <div className="space-x-6 hidden md:flex text-sm font-medium items-center">
-          <Link
-            to="/shop"
-            className="hover:text-brand transition text-dark-text"
-          >
+          <Link to="/shop" className="hover:text-brand text-dark-text">
             Shop
+          </Link>
+
+          <Link
+            to="/build-your-blend"
+            className="hover:text-brand text-dark-text"
+          >
+            Build Blend
           </Link>
 
           {user ? (
             <>
-              <Link
-                to="/my-orders"
-                className="hover:text-brand transition text-dark-text"
-              >
+              <Link to="/my-orders" className="hover:text-brand text-dark-text">
                 My Orders
               </Link>
 
               <button
                 onClick={handleLogout}
-                disabled={logoutMutation.isPending}
-                className="hover:text-brand transition text-dark-text disabled:opacity-60 disabled:cursor-not-allowed"
+                className="hover:text-brand text-dark-text"
               >
-                {logoutMutation.isPending ? "Logging out..." : "Logout"}
+                Logout
               </button>
             </>
           ) : (
-            <>
-              <Link
-                to="/login"
-                className="hover:text-brand transition text-dark-text"
-              >
-                Login
-              </Link>
-              <Link
-                to="/register"
-                className="hover:text-brand transition text-dark-text"
-              >
-                Register
-              </Link>
-            </>
+            <Link to="/login" className="hover:text-brand text-dark-text">
+              Login
+            </Link>
           )}
+        </div>
 
-          {/* Cart icon + badge */}
+        {/* RIGHT SIDE*/}
+        <div className="flex items-center gap-4">
           <Link
             to="/cart-preview"
-            className="relative text-dark-text hover:text-brand transition-colors duration-200"
-            aria-label="Shopping cart"
+            className="relative text-dark-text hover:text-brand transition"
           >
-            <FiShoppingCart size={20} />
-
+            <FiShoppingCart size={22} />
             {itemCount > 0 && (
               <span className="absolute -top-2 -right-2 min-w-4.5 h-4.5 px-1 rounded-full bg-brand text-black text-[11px] font-bold flex items-center justify-center">
                 {itemCount > 99 ? "99+" : itemCount}
               </span>
             )}
           </Link>
+
+          {/* MOBILE MENU BUTTON */}
+          <button
+            className="md:hidden text-dark-text"
+            onClick={() => setMobileOpen(!mobileOpen)}
+          >
+            {mobileOpen ? <FiX size={24} /> : <FiMenu size={24} />}
+          </button>
         </div>
       </div>
+
+      {/* MOBILE MENU */}
+      {mobileOpen && (
+        <div className="pt-3 md:hidden bg-black border-t border-white/10 px-6 pb-6 space-y-4">
+          <Link
+            to="/shop"
+            onClick={() => setMobileOpen(false)}
+            className="block text-dark-text hover:text-brand"
+          >
+            Shop
+          </Link>
+
+          <Link
+            to="/build-your-blend"
+            onClick={() => setMobileOpen(false)}
+            className="block text-dark-text hover:text-brand"
+          >
+            Build Blend
+          </Link>
+
+          {user ? (
+            <>
+              <Link
+                to="/my-orders"
+                onClick={() => setMobileOpen(false)}
+                className="block text-dark-text hover:text-brand"
+              >
+                My Orders
+              </Link>
+
+              <button
+                onClick={handleLogout}
+                className="block text-dark-text hover:text-brand"
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <Link
+              to="/login"
+              onClick={() => setMobileOpen(false)}
+              className="block text-dark-text hover:text-brand"
+            >
+              Login
+            </Link>
+          )}
+        </div>
+      )}
     </nav>
   );
 }
